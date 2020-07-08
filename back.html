@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - FBX loader - Nurbs</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+		<style>
+			#right{
+				background-color: #888;
+				width: 300px;
+				height: 100%;
+				position: absolute;
+				right: 0;
+			}
+
+		</style>
+	</head>
+
+	<body>
+		<div id="left" style="width: 70%;"></div>
+		<div id="right"></div>
+
+		<script type="module">
+			import * as THREE from '../build/three.module.js';
+			import Stats from './jsm/libs/stats.module.js';
+			import { OrbitControls } from './jsm/controls/OrbitControls.js';
+			import { FBXLoader } from './jsm/loaders/FBXLoader.js';
+			var container, stats, controls;
+			var camera, scene, renderer, light;
+			var object_self;
+			var leftWidth;
+			init();
+			animate();
+			function init() {
+				//container = document.createElement('div');
+				container = document.getElementById('left');
+				leftWidth = window.innerWidth;
+				document.body.appendChild( container );
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
+				camera.position.set( 1112, 800, 58 );
+				scene = new THREE.Scene();
+				light = new THREE.HemisphereLight( 0xffffff, 0x444444 );
+				light.position.set( 0, 1, 0 );
+				scene.add( light );
+				light = new THREE.DirectionalLight( 0xffffff );
+				light.position.set( 0, 1, 0 );
+				scene.add( light );
+				// grid
+				var gridHelper = new THREE.GridHelper( 28, 28, 0x303030, 0x303030 );
+				// 创建一个纹理图片加载器加载图片
+				var textureLoader = new THREE.TextureLoader();
+				// 加载背景图片
+				var texture = textureLoader.load('back.jpg');
+				// 纹理对象Texture赋值给场景对象的背景属性.background
+				scene.background = texture
+				//scene.add( gridHelper );
+				// stats
+				stats = new Stats();
+			//	container.appendChild( stats.dom );
+				// model
+				var loader = new FBXLoader();
+				loader.load('models/HJ_GD0001.fbx', function ( object ) {
+					object_self = object;
+					object_self.rotation.z=0;
+					object_self.rotation.x=-0;
+					scene.add( object );
+				} );
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+			//	renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.setSize(leftWidth, window.innerHeight );
+				
+				container.appendChild( renderer.domElement );
+
+				controls = new OrbitControls( camera, renderer.domElement );
+				controls.target.set( 0, 12, 0 );
+				controls.update();
+
+				window.addEventListener( 'resize', onWindowResize, false );
+				
+				setInterval(function(){
+					
+					object_self.rotation.y+= 0.005;
+					
+				
+				},100);
+			}
+
+			function onWindowResize() {
+				camera.aspect = (window.innerWidth / window.innerHeight);
+				camera.updateProjectionMatrix();
+
+				//renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.setSize(  leftWidth, window.innerHeight );
+
+			}
+
+			//
+			
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				renderer.render( scene, camera );
+
+				stats.update();
+
+			}
+
+		</script>
+
+	</body>
+</html>
